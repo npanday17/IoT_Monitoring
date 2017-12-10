@@ -1,11 +1,6 @@
 package pcis;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JList;
 import javax.swing.JOptionPane;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -72,27 +67,28 @@ public class EsperTest implements UpdateListener
 	
 	public static void main(String[] args) 
 	{
+		Logger.getRootLogger().setLevel(Level.OFF);
+		
 		TemperatureEvent event = EsperTest.getTemperatureEventObject();
 
-		Logger.getRootLogger().setLevel(Level.OFF);
-		EsperTest test = new EsperTest();
+		EsperTest esper = new EsperTest();
 		
-		test.addStatement("SELECT * from TemperatureEvent where temperature > 15");
-		test.addStatement("SELECT * from TemperatureEvent where temperature < 15");
+		esper.addStatement("SELECT * from TemperatureEvent where temperature > 15");
+		esper.addStatement("SELECT * from TemperatureEvent where temperature < 15");
 		
 		//test.removeStatement("stmt_1");
 		
 		//test.destroyAllStatements();
 		
 		event.setTemperature(12);
-		test.engine.getEPRuntime().sendEvent(event);
+		esper.engine.getEPRuntime().sendEvent(event);
 		event.setTemperature(20);
-		test.engine.getEPRuntime().sendEvent(event);
+		esper.engine.getEPRuntime().sendEvent(event);
 		
-		String[] statements = test.getStatementsNames();
+		String[] statements = esper.getStatementsNames();
 		for(int i=0; i<statements.length; i++)
 		{
-			JOptionPane.showMessageDialog(null, statements[i] + " : " + test.getStatementText(statements[i]));
+			JOptionPane.showMessageDialog(null, statements[i] + " : " + esper.getStatementText(statements[i]));
 		}
 	}
 }
