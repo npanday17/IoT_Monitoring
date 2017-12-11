@@ -1,5 +1,9 @@
 package pcis;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import javax.swing.JOptionPane;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -9,9 +13,9 @@ import com.espertech.esper.client.EPServiceProvider;
 import com.espertech.esper.client.EPServiceProviderManager;
 import com.espertech.esper.client.EPStatement;
 import com.espertech.esper.client.EventBean;
-import com.espertech.esper.client.UpdateListener;
+import com.espertech.esper.client.StatementAwareUpdateListener;
 
-public class EsperTest implements UpdateListener
+public class EsperTest implements StatementAwareUpdateListener
 {
 	public EPServiceProvider engine;
 	private static TemperatureEvent tempEvent = null;
@@ -57,12 +61,24 @@ public class EsperTest implements UpdateListener
 		}
 		return tempEvent;		
 	}
-
+	
 	@Override
-	public void update(EventBean[] newData, EventBean[] oldData) 
-	{
-		double temperature = (double) newData[0].get("temperature");
-		JOptionPane.showMessageDialog(null, "Temperature is : " + String.valueOf(temperature));
+	public void update(EventBean[] newEvents, EventBean[] oldEvents, EPStatement statement, EPServiceProvider epServiceProvider) {
+		
+		switch(statement.getName())
+		{
+		case "stmt_1":
+			JOptionPane.showMessageDialog(null, "stmt_1 : " + statement.getText());
+			break;
+		case "stmt_2":
+			JOptionPane.showMessageDialog(null, "stmt_2 : " + statement.getText());
+			break;
+		default:
+			break;
+		}	
+		
+		//double temperature = (double) newEvents[0].get("temperature");
+		//JOptionPane.showMessageDialog(null, "Temperature is : " + String.valueOf(temperature));
 	}
 	
 	public static void main(String[] args) 
@@ -73,7 +89,7 @@ public class EsperTest implements UpdateListener
 
 		EsperTest esper = new EsperTest();
 		
-		esper.addStatement("SELECT * from TemperatureEvent where temperature > 15");
+		esper.addStatement("SELECT * from TemperatureEvent where temperature > 25");
 		esper.addStatement("SELECT * from TemperatureEvent where temperature < 15");
 		
 		//test.removeStatement("stmt_1");
@@ -82,13 +98,13 @@ public class EsperTest implements UpdateListener
 		
 		event.setTemperature(12);
 		esper.engine.getEPRuntime().sendEvent(event);
-		event.setTemperature(20);
+		event.setTemperature(30);
 		esper.engine.getEPRuntime().sendEvent(event);
 		
 		String[] statements = esper.getStatementsNames();
 		for(int i=0; i<statements.length; i++)
 		{
-			JOptionPane.showMessageDialog(null, statements[i] + " : " + esper.getStatementText(statements[i]));
+			//JOptionPane.showMessageDialog(null, statements[i] + " : " + esper.getStatementText(statements[i]));
 		}
 	}
 }
