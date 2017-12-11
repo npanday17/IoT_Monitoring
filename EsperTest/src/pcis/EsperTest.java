@@ -1,10 +1,8 @@
 package pcis;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import javax.swing.JOptionPane;
+
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -68,10 +66,16 @@ public class EsperTest implements StatementAwareUpdateListener
 		switch(statement.getName())
 		{
 		case "stmt_1":
-			JOptionPane.showMessageDialog(null, "stmt_1 : " + statement.getText());
+			System.out.println("stmt_1 : " + statement.getText());
+			System.out.println("Avg is : " + String.valueOf(newEvents[0].get("temperature")));
 			break;
 		case "stmt_2":
-			JOptionPane.showMessageDialog(null, "stmt_2 : " + statement.getText());
+			System.out.println("stmt_2 : " + statement.getText());
+			System.out.println("Count is : " + String.valueOf(newEvents[0].get("count")));
+			System.out.println("Temperature is : " + String.valueOf(newEvents[0].get("temperature")));
+			break;
+		case "stmt_3":
+			JOptionPane.showMessageDialog(null, "stmt_3 : " + statement.getText());
 			break;
 		default:
 			break;
@@ -89,16 +93,21 @@ public class EsperTest implements StatementAwareUpdateListener
 
 		EsperTest esper = new EsperTest();
 		
-		esper.addStatement("SELECT * from TemperatureEvent where temperature > 25");
-		esper.addStatement("SELECT * from TemperatureEvent where temperature < 15");
+		esper.addStatement("select avg(temperature) as temperature from TemperatureEvent having count(*) >= 5");
+		esper.addStatement("select count(*) as count, avg(temperature) as temperature from TemperatureEvent");
+		esper.addStatement("SELECT * from TemperatureEvent where temperature > 40");
 		
 		//test.removeStatement("stmt_1");
 		
 		//test.destroyAllStatements();
 		
-		event.setTemperature(12);
+		event.setTemperature(15);
 		esper.engine.getEPRuntime().sendEvent(event);
-		event.setTemperature(30);
+		event.setTemperature(10);
+		esper.engine.getEPRuntime().sendEvent(event);
+		event.setTemperature(17);
+		esper.engine.getEPRuntime().sendEvent(event);
+		event.setTemperature(14);
 		esper.engine.getEPRuntime().sendEvent(event);
 		
 		String[] statements = esper.getStatementsNames();
